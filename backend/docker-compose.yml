@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  app:
+    image: your-dockerhub-username/student-assignments-service:latest
+    container_name: student-assignments-service
+    ports:
+      - "5000:3002"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=3002 
+      - REDIS_HOST=redis
+      - REDIS_PORT=6397  
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    container_name: redis-server
+    ports:
+      - "6397:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
